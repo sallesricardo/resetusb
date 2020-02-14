@@ -3,6 +3,37 @@ import os
 import sys
 from subprocess import Popen, PIPE
 import fcntl
+import socket
+
+def is_connected():
+    REMOTE_SERVER = {
+                    "www.google.com": 80,   # Google site
+                    "8.8.8.8": 53,          # Google dns server
+                    "1.1.1.1": 53,          # Cloudflare dns server
+                    "208.67.222.222": 53,   # Opendns dns server
+                    }
+    tests = 0
+    for server, port in REMOTE_SERVER.items():
+        print("Testing: {} - ".format(server), end="")
+        try:
+            # see if we can resolve the host name -- tells us if there is
+            # a DNS listening
+            host = socket.gethostbyname(server)
+            # connect to the host -- tells us if the host is actually
+            # reachable
+            s = socket.create_connection((host, port), 2)
+            s.close()
+            tests += 1
+            print("OK!")
+        except:
+            print("Fail!!!")
+            pass
+    
+    half = int(len(REMOTE_SERVER) / 2)
+    if tests >= half:
+        return True
+    else:
+        return False
 
 
 def create_pci_list():
