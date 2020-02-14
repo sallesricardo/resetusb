@@ -148,6 +148,23 @@ if __name__ == "__main__":
         print(instructions)
         sys.exit(0)
 
+    if 'config' in option:
+        usb_list = create_usb_list()
+        n = 1
+        #for device in usb_list:
+        #    for field in device:
+        #        print("Field: {} - Data: {}".format(field,device[field]))
+        #    print("=" * 80)
+        for device in usb_list:
+            print('%02d:  %s %s %s (%s)' % (n, device['description'], device['manufacturer'], device['device'], device['path']))
+            n += 1
+
+        print("=" * 80)
+        if is_connected():
+            print("Internet OK!")
+        else:
+            print("Desconectado")
+
     if 'listpci' in option:
         pci_usb_list = create_pci_list()
         for device in pci_usb_list:
