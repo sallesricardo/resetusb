@@ -105,12 +105,14 @@ if __name__ == "__main__":
         sudo python reset_usb.py searchpci "search terms" : Search for PCI USB device using the search terms within the search string returned by listpci and reset matching device       
         '''
 
+    option2 = None
+    option = 'help'
 
-    if len(sys.argv) < 2:
-        print(instructions)
-        sys.exit(0)
+    if len(sys.argv) > 1:
+        option = sys.argv[1].lower()
+        if len(sys.argv) > 2:
+            option2 = sys.argv[2]
 
-    option = sys.argv[1].lower()
     if 'help' in option:
         print(instructions)
         sys.exit(0)
@@ -134,35 +136,30 @@ if __name__ == "__main__":
             print('    search string=%s %s %s' % (device['description'], device['manufacturer'], device['device']))
         sys.exit(0)
 
-    if len(sys.argv) < 3:
-        print(instructions)
-        sys.exit(0)
+    if option2 is not None:
+        print('Resetting device: %s' % option2)
 
-    option2 = sys.argv[2]
+        if 'pathpci' in option:
+            reset_pci_usb_device(option2)
 
-    print('Resetting device: %s' % option2)
+        if 'searchpci' in option:
+            pci_usb_list = create_pci_list()
+            for device in pci_usb_list:
+                text = '%s %s' % (device['SVendor'], device['SDevice'])
+                if option2 in text:
+                    reset_pci_usb_device(device['path'])
+            print('Failed to find device!')
+            sys.exit(-1)
 
-    if 'pathpci' in option:
-        reset_pci_usb_device(option2)
-
-    if 'searchpci' in option:
-        pci_usb_list = create_pci_list()
-        for device in pci_usb_list:
-            text = '%s %s' % (device['SVendor'], device['SDevice'])
-            if option2 in text:
-                reset_pci_usb_device(device['path'])
-        print('Failed to find device!')
-        sys.exit(-1)
-
-    if 'path' in option:
-        reset_usb_device(option2)
+        if 'path' in option:
+            reset_usb_device(option2)
 
 
-    if 'search' in option:
-        usb_list = create_usb_list()
-        for device in usb_list:
-            text = '%s %s %s' % (device['description'], device['manufacturer'], device['device'])
-            if option2 in text:
-                reset_usb_device(device['path'])
-        print('Failed to find device!')
-        sys.exit(-1)
+        if 'search' in option:
+            usb_list = create_usb_list()
+            for device in usb_list:
+                text = '%s %s %s' % (device['description'], device['manufacturer'], device['device'])
+                if option2 in text:
+                    reset_usb_device(device['path'])
+            print('Failed to find device!')
+            sys.exit(-1)
