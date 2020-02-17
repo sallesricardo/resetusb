@@ -5,6 +5,15 @@ from subprocess import Popen, PIPE
 import fcntl
 import socket
 
+def get_servers():
+    new_servers_list = {}
+    if os.path.exists("servers"):
+        with open("servers") as new_servers:
+            for line in new_servers:
+                server = line.split("#")[0].strip().split(":")
+                new_servers_list[server[0]] = int(server[1])
+    return new_servers_list
+
 def is_connected():
     REMOTE_SERVER = {
                     "www.google.com": 80,   # Google site
@@ -12,6 +21,7 @@ def is_connected():
                     "1.1.1.1": 53,          # Cloudflare dns server
                     "208.67.222.222": 53,   # Opendns dns server
                     }
+    REMOTE_SERVER.update(get_servers())
     tests = 0
     for server, port in REMOTE_SERVER.items():
         print("Testing: {} - ".format(server), end="")
