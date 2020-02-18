@@ -160,14 +160,40 @@ if __name__ == "__main__":
 
     if 'config' in option:
         usb_list = create_usb_list()
+        list_for_choose = {}
+        try:
+            with open("/etc/brascontrol/dev_modem", "r") as device_modem_file:
+                dev = device_modem_file.readline().strip()
+        except:
+            dev = ""
         n = 1
-        #for device in usb_list:
-        #    for field in device:
-        #        print("Field: {} - Data: {}".format(field,device[field]))
-        #    print("=" * 80)
         for device in usb_list:
-            print('%02d:  %s %s %s (%s)' % (n, device['description'], device['manufacturer'], device['device'], device['path']))
+            mark = [" ", " "]
+            if device['path'] == dev:
+                mark = ["[", "]"]
+            print('%c%02d%c:  %s %s %s (%s)' % (mark[0] ,n , mark[1], device['description'], device['manufacturer'], device['device'], device['path']))
+            list_for_choose[n] = device['path']
             n += 1
+
+        while True:
+            try:
+                ret = input("Digite o número do seu Modem: ")
+                ret = int(ret)
+                device = list_for_choose[ret]
+                break
+            except ValueError:
+                print("Digite um número!")
+                continue
+            except KeyError:
+                print("Numero não corresponde a nenhum dispositivo!")
+                continue
+            except KeyboardInterrupt:
+                print("\n\nAbortando!!!\n")
+                sys.exit(-1)
+        
+        print("Modem: {}".format(device))
+        with open("/etc/brascontrol/dev_modem", "w") as device_modem_file:
+            device_modem_file.write(device)
 
         print("=" * 80)
         if is_connected():
