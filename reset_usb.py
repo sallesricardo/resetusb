@@ -147,7 +147,7 @@ if __name__ == "__main__":
         '''
 
     option2 = None
-    option = 'help'
+    option = 'reset'
 
     if len(sys.argv) > 1:
         option = sys.argv[1].lower()
@@ -157,6 +157,17 @@ if __name__ == "__main__":
     if 'help' in option:
         print(instructions)
         sys.exit(0)
+
+    if 'reset' in option:
+        dev = None
+        try:
+            with open("/etc/brascontrol/dev_modem", "r") as device_modem_file:
+                dev = device_modem_file.readline().strip()
+        except:
+            option = 'config'
+        else:
+            reset_usb_device(dev)
+
 
     if 'config' in option:
         usb_list = create_usb_list()
