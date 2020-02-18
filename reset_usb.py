@@ -135,6 +135,20 @@ def reset_usb_device(dev_path):
         sys.exit(-1)
 
 
+def get_path_from_file():
+    dev_path = None
+    try:
+        with open("/etc/brascontrol/dev_modem", "r") as device_modem_file:
+            dev = device_modem_file.readline().strip()
+        usb_list = create_usb_list()
+        for device in usb_list:
+            text = '%s %s %s' % (device['description'], device['manufacturer'], device['device'])
+            if dev in text:
+                dev_path = device['path']
+    except:
+        raise
+    return dev_path
+
 if __name__ == "__main__":
     instructions = '''
     Usage: python reset_usb.py help : Show this help
@@ -147,7 +161,7 @@ if __name__ == "__main__":
         '''
 
     option2 = None
-    option = 'reset'
+    option = 'isconnected'
 
     if len(sys.argv) > 1:
         option = sys.argv[1].lower()
@@ -158,16 +172,22 @@ if __name__ == "__main__":
         print(instructions)
         sys.exit(0)
 
+    if 'isconnected' in option:
+        if not is_connected():
+            print("\nFail on test!\n")
+            dev_path = None
+            try:
+                dev_path = get_path_from_file()
+            except:
+                option = 'config'
+            else:
+                if dev_path:
+                    reset_usb_device(dev_path)
+
     if 'reset' in option:
         dev_path = None
         try:
-            with open("/etc/brascontrol/dev_modem", "r") as device_modem_file:
-                dev = device_modem_file.readline().strip()
-            usb_list = create_usb_list()
-            for device in usb_list:
-                text = '%s %s %s' % (device['description'], device['manufacturer'], device['device'])
-                if dev in text:
-                    dev_path = device['path']
+            dev_path = get_path_from_file()
         except:
             option = 'config'
         else:
