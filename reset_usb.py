@@ -159,15 +159,20 @@ if __name__ == "__main__":
         sys.exit(0)
 
     if 'reset' in option:
-        dev = None
+        dev_path = None
         try:
             with open("/etc/brascontrol/dev_modem", "r") as device_modem_file:
                 dev = device_modem_file.readline().strip()
+            usb_list = create_usb_list()
+            for device in usb_list:
+                text = '%s %s %s' % (device['description'], device['manufacturer'], device['device'])
+                if dev in text:
+                    dev_path = device['path']
         except:
             option = 'config'
         else:
-            reset_usb_device(dev)
-
+            if dev_path:
+                reset_usb_device(dev_path)
 
     if 'config' in option:
         usb_list = create_usb_list()
@@ -180,10 +185,11 @@ if __name__ == "__main__":
         n = 1
         for device in usb_list:
             mark = [" ", " "]
-            if device['path'] == dev:
+            if device['description'] in dev:
                 mark = ["[", "]"]
-            print('%c%02d%c:  %s %s %s (%s)' % (mark[0] ,n , mark[1], device['description'], device['manufacturer'], device['device'], device['path']))
-            list_for_choose[n] = device['path']
+            text = '%s %s %s' % (device['description'], device['manufacturer'], device['device'])
+            print('%c%02d%c:  %s (%s)' % (mark[0] ,n , mark[1], text, device['path']))
+            list_for_choose[n] = device['description']
             n += 1
 
         while True:
