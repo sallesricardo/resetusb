@@ -174,6 +174,12 @@ if __name__ == "__main__":
             if dev_path:
                 reset_usb_device(dev_path)
 
+    if 'test' in option:
+        if is_connected():
+            print("\nInternet OK!")
+        else:
+            print("\nDesconectado")
+
     if 'config' in option:
         usb_list = create_usb_list()
         list_for_choose = {}
@@ -212,11 +218,6 @@ if __name__ == "__main__":
         with open("/etc/brascontrol/dev_modem", "w") as device_modem_file:
             device_modem_file.write(device)
 
-        print("=" * 80)
-        if is_connected():
-            print("Internet OK!")
-        else:
-            print("Desconectado")
 
     if 'listpci' in option:
         pci_usb_list = create_pci_list()
